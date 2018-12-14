@@ -1,0 +1,134 @@
+[
+    ['2018-12-13', 0, 0, 10000, '开始记账'],
+]
+
+>>> def get_age(name, age):
+...   print('%s is %s years old.' % (name, age))
+
+>>> get_age()   # error
+>>> get_age('bob', 25, 26)   # error
+>>> get_age('bob', 25)   # 正确
+>>> get_age(25, 'bob')   # 语法没有错误，语义不对
+>>> get_age(age=25, name='bob')   # 正确
+>>> get_age(age=25, 'bob')   # 语法错误，key=val形式必须在后
+>>> get_age(25, name='bob')   # 错误，name得到多个值
+>>> get_age('bob', age=25)   # 正确
+
+匿名函数
+>>> def add(x, y):
+...     return x + y
+...
+>>> add(10, 20)
+30
+>>> myadd = lambda x, y: x + y
+>>> myadd(10, 20)
+30
+
+
+>>> x = 10
+>>> def foo():
+...   print(x)
+>>> foo()
+10
+>>> def bar():
+...   x = 'hello world'   # 函数内的变量是局部变量
+...   print(x)
+>>> bar()
+hello world
+>>> x           # 局部变量不会改变全局变量的值
+10
+>>> def test1():
+...   y = 100
+...   print(y)
+>>> test1()
+100
+>>> y   # 报错，局部变量当函数调用结束后就消失了
+# 如果两个函数中有同名变量，两个同名变量没有关系
+
+>>> def test2():
+...   global x    # 声明这里的x是全局变量x
+...   x = 'zhangsan'
+...   print(x)
+>>> test2()
+zhangsan
+>>> x
+'zhangsan'
+
+
+偏函数：相当于是改造现有函数，将其一部分参数固定下来
+>>> def add(a, b, c, d):
+...   return a + b + c + d
+...
+>>> add(10, 20, 30, 5)
+65
+>>> add(10, 20, 30, 123)
+183
+>>> add(10, 20, 30, 42)
+102
+>>> from functools import partial
+>>> myadd = partial(add, 10, 20, 30)
+>>> myadd(5)
+65
+>>> myadd(123)
+183
+
+
+5的阶乘 5!=5X4X3X2X1
+>>> result = 1
+>>> for i in range(1, 6):
+...   result *= i
+>>> result
+120
+
+5的阶乘:  一个数的阶乘等于它乘以它下一个数的阶乘
+5!=5X4X3X2X1
+5!=5X4!
+5!=5X4X3!
+5!=5X4X3X2!
+5!=5X4X3X2X1!
+
+《图解算法》
+nums = [53, 15, 56, 54, 66, 2, 57, 23, 31, 57]
+middle = 53
+larger = [56, 54, 66, 57, 57]
+smaller = [15, 2, 23, 31,]
+
+smaller + [middle] + larger
+
+
+生成器：本质上是函数，但是它能生成多个中间值，而函数只有一个最终值
+生成器节省内存，更加有效率
+>>> ips = ['192.168.1.%s' % i for i in range(1, 255)]
+>>> hosts = ('192.168.1.%s' % i for i in range(1, 255))
+>>> for host in hosts:
+...   print(host)
+
+# 生成器通过yield生成多个中间结果
+>>> def mygen():
+...   yield 100
+...   print('-----------------')
+...   yield 200
+...   print('##########')
+...   yield 300
+>>> a = mygen()
+>>> a.__next__()
+>>> a.__next__()
+>>> x = a.__next__()
+>>> x
+300
+>>> a.__next__()   # 没有数据将会抛出StopIteration异常，生成器对象是一次性的
+>>> b = mygen()
+>>> for item in b:   # for可以遍历生成器，遇到StopIteration自动停止
+...   print(item)
+
+
+
+
+
+
+
+
+
+
+
+
