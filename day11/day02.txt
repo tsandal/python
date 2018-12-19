@@ -1,0 +1,73 @@
+python没有把所有的模块都安装到系统中。非标准库中的模块需要手工安装
+1、官方站点：http://pypi.python.org，搜索到相关的模块下载
+# tar xzf PyMySQL-xxx.tar.gz
+# cd PyMySQL
+# python3 setup.py install
+2、使用pip安装，类似于yum。单独安装模块，模块也有依赖，就像RPM一样。
+# pip3 install pymysql  在线安装
+# pip3 install PyMySQL-xxx.tar.gz  本地安装
+3、在线安装，可以采用国内开源镜像站点
+# mkdir ~/.pip/
+# vim ~/.pip/pip.conf
+[global]
+index-url = http://pypi.douban.com/simple/
+[install]
+trusted-host=pypi.douban.com
+
+本地安装pymysql
+# cd pymysql_pkgs/
+# pip3 install *
+[root@room8pc16 day02]# python3
+>>> import pymysql
+
+准备数据库
+# yum install -y mariadb-server
+# systemctl start mariadb
+# systemctl enable mariadb
+# mysqladmin password tedu.cn
+# mysql -uroot -ptedu.cn
+MariaDB [(none)]> CREATE DATABASE nsd1807 DEFAULT CHARSET utf8;
+
+
+数据库中需要记录的字段有：
+工号	姓名	性别	出生日期	联系方式	部门	工资日期	基本工资	奖金	实发工资
+
+关系型数据库要注意消除冗余
+1、第一范式：对域添加的一个规范要求，所有的域都应该是原子性的。
+即数据库表的每一列都是不可分割的原子数据项
+联系方式不具有原子性，所以要进一步拆分成：住址、email、电话
+2、第二范式：在1NF的基础上，非码属性必须完全依赖于码。
+在1NF基础上消除非主属性对主码的部分函数依赖
+employees: 工号	姓名	性别 住址、email、电话 部门ID
+salary: 工号 工资日期	基本工资	奖金	实发工资
+departments: 部门ID 部门名称
+3、第三范式（3NF）是第二范式（2NF）的一个子集，任何非主属性不得传递依赖于主属性
+实发工资依赖基本工资和奖金，这个字段不应该存在。用的时候临时计算。
+employees: 工号	姓名	性别 住址、email、电话 部门ID
+salary: 工号 工资日期	基本工资	奖金
+departments: 部门ID 部门名称
+
+安装
+# cd sqlalchemy_pkgs/
+# pip3 install SQLAlchemy-1.2.14.tar.gz
+>>> import sqlalchemy
+
+hr = department(dep_id=1, dep_name='人事部')
+
+[(1, '人事部'), (2, '开发部')]
+
+bob(name='bob', student_id=1, weight=25)
+[(1, 'bob', 25), (2, 'alice', 30)]
+
+
+
+
+
+
+
+
+
+
+
+
+
