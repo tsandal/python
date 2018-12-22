@@ -1,0 +1,116 @@
+http状态码
+200：OK 成功
+301：永久重定向
+302：临时重定向
+403: Forbidden 禁止访问
+404：Not Found 页面找不到
+500：服务器内部错误
+
+HTTP方法：
+GET：如在网页中输入网址回车、点击一个超链接
+POST：如提交表单(登陆的时候输入的用户名、密码)
+
+模拟get访问
+[root@room8pc16 day03]# telnet www.sogou.com 80
+GET /index.html HTTP/1.1
+Host: www.sogou.com
+回车
+
+>>> from urllib.request import urlopen
+>>> html = urlopen('http://www.qq.com')
+>>> html.read(20)
+b' <!DOCTYPE HTML>\n<!-'
+
+>>> html = urlopen('http://www.qq.com')
+>>> with open('/tmp/qq.html', 'wb') as fobj:
+...   fobj.write(html.read())
+[root@room8pc16 day03]# firefox /tmp/qq.html
+
+>>> img = urlopen('https://upload-images.jianshu.io/upload_images/11438996-667d776561e26b29?imageMogr2/auto-orient/strip%7CimageView2/2/w/640')
+>>> with open('/tmp/myimg.jpg' ,'wb') as fobj:
+...   fobj.write(img.read())
+[root@room8pc16 day03]# eog /tmp/myimg.jpg
+
+
+爬取网站上所有的图片
+1、下载指定网页，如网易首页
+2、在网页中找到所有的图片网址
+3、下载图片
+
+http://xxxx.com/sffdsjklsdf.jpg    xkxks  http://sdfjklsdfjkl.jpg
+
+
+模拟浏览器行为
+1、观察服务器的记录行为
+# tail -f /var/log/httpd/access_log
+分别用火狐和urllib进行访问，观察日志，发现有不同的记录信息
+2、urllib访问时，修改头部信息
+>>> header = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
+>>> from urllib.request import Request, urlopen
+>>> r = Request('http://127.0.0.1/', headers=header)
+>>> html = urlopen(r)
+观察日志的输出，发现日志记录的已经是火狐浏览器了
+
+URL地址栏中只支持一部分ASCII码，其他字符必须进行编码
+>>> from urllib.request import quote
+>>> quote('中国')
+'%E4%B8%AD%E5%9B%BD'
+>>> quote('你好')
+'%E4%BD%A0%E5%A5%BD'
+>>> sogou = 'http://www.sogou.com/web?query='
+>>> hi = quote('你好')
+>>> html = urlopen(sogou + hi)
+>>> with open('/tmp/sogou.html', 'wb') as fobj:
+...   fobj.write(html.read())
+
+
+异常处理
+http://127.0.0.1/abc/   -> 不存在
+http://127.0.0.1/ban/   -> 权限700
+>>> url1 = 'http://127.0.0.1/abc'
+>>> url2 = 'http://127.0.0.1/ban'
+>>> urlopen(url1)   # 得到404异常
+>>> urlopen(url2)   # 得到403异常
+
+
+# pip3 install wget
+>>> wget.download(url, out='xxxx/xxx/xxx')
+
+paramiko:服务器远程管理、远程拷贝
+1、准备三台虚拟机
+2、安装paramiko
+# cd paramiko_pkgs/
+[root@room8pc16 paramiko_pkgs]# pip3 install *
+3、paramiko远程管理
+>>> import paramiko
+>>> ssh = paramiko.SSHClient()
+>>> ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 回答yes
+>>> ssh.connect('192.168.4.3', username='root', password='123456')
+>>> ssh.exec_command('mkdir /tmp/demo')
+>>> ssh.close()
+
+
+>>> ssh.connect('192.168.4.3', username='root', password='123456')
+>>> command = 'id root; id alice'
+>>> result = ssh.exec_command(command)
+>>> type(result)
+>>> len(result)
+执行命令后返回的数据是由三个类文件对象(输入、输出、错误)组成的元组。
+>>> result[1].read()
+>>> result[2].read()
+
+[192.168.4.3] OUT:
+XXXXXXX
+
+
+
+
+
+
+
+
+
+
+
+
+
