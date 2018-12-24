@@ -1,0 +1,104 @@
+CI: 持续集成
+CD: 持续交付、持结部署
+
+解释型语言：python/php/shell
+编译型语言：c/java
+
+java源码生成war包：maven/ant/gradle
+
+
+jenkins
+一、安装
+1、准备一台虚拟机，2G内存
+2、两块网卡，eth0:192.168.4.x/24，eth1: 接入互联网
+3、注意：jenkins是用java语言编写的。
+4、把jenkins拷贝到虚拟机
+# cd jenkins/
+# scp jenkins-2.138.2-1.1.noarch.rpm 192.168.4.3:/root
+# rpm -ihv jenkins-2.138.2-1.1.noarch.rpm
+5、启动服务
+[root@node3 ~]# systemctl start jenkins
+[root@node3 ~]# systemctl enable jenkins
+二、配置
+1、访问虚拟机的8080端口，按向导进行
+2、插件安装时，只安装git和git parameter
+如果安装失败，跳过。稍后安装完成后，改为使用国同镜像站点安装
+https://blog.csdn.net/you227/article/details/81076032
+3、进入jenkins后，修改管理员密码
+三、准备git（模拟程序员开发了软件的多个版本）
+1、物理主机上初始化软件项目
+[root@room8pc16 tmp]# git init webapp
+[root@room8pc16 tmp]# cd webapp/
+[root@room8pc16 webapp]# echo '<h1>my web site</h1>' > index.html
+[root@room8pc16 webapp]# git add .
+[root@room8pc16 webapp]# git commit -m "web app 1.0"
+[root@room8pc16 webapp]# git tag 1.0   # 把当前状态打个标记，表示1.0版本
+[root@room8pc16 webapp]# echo '<h2>web app 2.0</h2>' >> index.html
+[root@room8pc16 webapp]# git add .
+[root@room8pc16 webapp]# git commit -m "web app 2.0"
+[root@room8pc16 webapp]# git tag 2.0
+[root@room8pc16 webapp]# git tag   # 查看标记
+2、配置gitlab服务器
+为devops组创建一个名为webapp的项目，并且进行授权
+3、上传代码，采用http的方式
+[root@room8pc16 webapp]# git remote rename origin old-origin
+[root@room8pc16 webapp]# git remote add origin http://192.168.4.1/devops/webapp.git
+[root@room8pc16 webapp]# git push -u origin --all  # 可以使用root
+[root@room8pc16 webapp]# git push -u origin --tags
+
+三、使用jenkins
+1、配置jenkins从gitlab上下载代码
+2、把下载的代码打包
+3、生成压缩包md5值，保存到文件中，以便将来客户端下载后进行校验
+4、记录软件当前版本live_version和上一个版本last_version
+
+
+1、下载代码
+(1) 在jenkins上安装git
+(2) 新建一个“自由风格”的项目，源码使用git，添写git地址，保存即可
+2、指定版本
+(1)修改现有的项目，添加“参数化构建过程”，使用git parameter
+(2)名称指定web_version，这就是一个变量，代表tag标记
+(3)在源码管理下方的Branches to build中指定${web_version}
+(4)保存
+(5)构建，点击“Build with parameters”
+
+3、指定子目录
+(1)源码管理下面选择Additional Behaviours -> checkout to a sub-directory
+-> webapp_${web_version}
+(2)重新构建测试
+
+4、其他步骤
+(1) 为了方便把下载的软件包进行分发，在jenkins上安装httpd
+[root@node3 ~]# yum install -y httpd
+[root@node3 ~]# systemctl start httpd
+[root@node3 ~]# systemctl enable httpd
+(2) 配置httpd工作目录
+/var/www/html/deploy/packages/  -> 存放软件压缩包和md5值
+/var/www/html/deploy/  -> 存放版本文件
+[root@node3 ~]# mkdir -p /var/www/html/deploy/packages
+[root@node3 ~]# chown -R jenkins.jenkins /var/www/html/deploy
+(3) 修改jenkins项目，在“构建”选择“增加构建步骤” -> "执行shell"
+deploy_dir=/var/www/html/deploy
+cp -r webapp_${web_version} $deploy_dir/packages/  # 拷贝文件到httpd文档目录
+cd $deploy_dir/packages/
+rm -rf webapp_${web_version}/.git   # 删除不必要的版本库
+tar czf webapp_${web_version}.tar.gz webapp_${web_version}  # 压缩
+rm -rf webapp_${web_version}   # 删除目录，只保留压缩文件
+md5sum webapp_${web_version}.tar.gz | awk '{print $1}'  > webapp_${web_version}.tar.gz.md5  # 计算压缩文件的md5值
+cd $deploy_dir
+[ -f live_version ] && cat live_version > last_version  # 如果有live_version把它的内容写到last_version中
+echo ${web_version} > live_version  # 向live_version写入最新版本
+
+
+
+
+
+
+
+
+
+
+
+
+
