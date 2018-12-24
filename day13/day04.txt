@@ -1,0 +1,106 @@
+发邮件：
+1、准备邮件
+主题、正文、收件人、发件人
+2、发邮件
+邮件服务器、用户名、密码、收件人、发件人
+
+
+JSON: 可以在网络中传输各种各样的数据类型，功能类似于pickle模块
+>>> import json
+>>> adict = {'city': '北京', 'weather': '阴'}
+>>> j1 = json.dumps(adict)
+>>> j1
+'{"city": "\\u5317\\u4eac", "weather": "\\u9634"}'
+>>> type(j1)
+<class 'str'>
+
+>>> d1 = json.loads(j1)
+>>> d1
+{'city': '北京', 'weather': '阴'}
+>>> type(d1)
+<class 'dict'>
+
+
+中国天气网：
+实况天气获取:http://www.weather.com.cn/data/sk/城市代码.html
+城市信息获取:http://www.weather.com.cn/data/cityinfo/城市代码.html
+详细指数获取:http://www.weather.com.cn/data/zs/城市代码.html
+城市代码可以在搜狗中搜索  中国天气网城市代码
+
+如北京的实况：http://www.weather.com.cn/data/sk/101010100.html
+>>> from urllib.request import urlopen
+>>> bjsk = 'http://www.weather.com.cn/data/sk/101010100.html'
+>>> html = urlopen(bjsk)
+>>> data = html.read()
+>>> json.loads(data)
+
+requests模块：底层采用了urllib3
+1、安装
+# cd requests_pkgs/
+# pip3 install *
+2、应用
+>>> import requests
+(1)对于普通文件，使用r.text返回str类型的数据
+>>> r = requests.get('http://127.0.0.1/')
+>>> r.text
+>>> r = requests.get('http://www.163.com')
+>>> r.text
+>>> r.encoding   # 查看字符编码
+>>> r.encoding = 'gbk'   # 修改字符编码
+(2)对于非文本，使用r.content返回bytes类型数据
+>>> r = requests.get('https://upload-images.jianshu.io/upload_images/12347101-0548326de2ebc9bc.png')
+>>> with open('/tmp/ding.png', 'wb') as fobj:
+...   fobj.write(r.content)
+(3)对于JSON格式，requests内建了json方法，使用r.json()返回相应数据
+>>> r = requests.get('http://www.weather.com.cn/data/cityinfo/101010100.html')
+>>> r.json()
+>>> r.encoding = 'utf8'
+>>> r.json()
+
+3、传递参数
+>>> params = {'query': '画图'}
+>>> r = requests.get('https://www.sogou.com/web', params=params)
+>>> with open('/tmp/paint.html', 'wb') as fobj:
+...   fobj.write(r.content)
+4、修改头部
+[root@room8pc16 ~]# tail -f /var/log/httpd/access_log
+>>> headers = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0'}
+>>> r = requests.get('http://127.0.0.1/', headers=headers)
+
+
+配置虚拟机可以上网
+1、在virt-manager中启用NAT网络
+virt-manager -> 编辑 -> 连接详情 -> 虚拟网络 -> 激活default网络
+2、打开虚拟机，点击“灯泡”按钮，将第二块网卡的连接改为“default NAT”
+3、停掉虚拟机的virbr0
+# ifconfig virbr0 down
+# brctl delbr virbr0
+4、在虚拟机中运行nmtui，添加eth1网卡，选择自动获取IP地址
+5、激活网卡：# ifdown eth1; ifup eth1
+
+
+zabbix api
+1、访问官网的手册
+https://www.zabbix.com/ -> Documentation -> chinese -> API
+2、监控
+(1)创建主机组
+(2)创建模板
+(3)创建主机时，将其指定加入某个主机组
+(4)主机组应用模板
+3、zabbix api的URL
+如果zabbix页面是http://192.168.4.2/zabbix/，那么它的API是
+http://192.168.4.2/zabbix/api_jsonrpc.php
+4、获取zabbix版本
+根据手册向API传递相应的data即可
+5、如果访问其他页面需要授权，所以必须获取一个token
+
+
+
+
+
+
+
+
+
+
+
