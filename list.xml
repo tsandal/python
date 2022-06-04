@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zips zip_num="2">
+	<zip name="z_nginx.zip" tar_num="2">
+		<tar name="t_nginx.tar.gz" tar1_num="1">
+			<tar1 name="t1_nginx.tar.gz" so_num="2">
+				<so name="so1_nginx.so"/>
+				<so name="so2_nginx.so"/>
+			</tar1>
+		</tar>
+		<tar name="t2_nginx.tar.gz" tar1_num="2">
+			<tar1 name="t22_nginx.tar.gz" so_num="1">
+				<so name="so21_nginx.so"/>
+			</tar1>
+			<tar1 name="t33_nginx.tar.gz" so_num="1">
+				<so name="so31_nginx.so"/>
+			</tar1>			
+		</tar>
+	</zip>
+	<zip name="z_redis.zip" tar_num="1">
+		<tar name="t_redis.tar.gz" tar1_num="1">
+			<tar1 name="t1_redis.tar.gz" so_num="3">
+				<so name="so1_redis.so"/>
+				<so name="so2_redis.so"/>
+				<so name="so3_redis.so"/>
+			</tar1>
+		</tar>
+	</zip>
+</zips>
